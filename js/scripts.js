@@ -49,27 +49,6 @@ function createAudioPlayer(instanceName,musicSrc) {
     window["playerObject_"+instanceName].container.appendChild(window["playerObject_"+instanceName].containerProgressBar);
     window["playerObject_"+instanceName].container.appendChild(window["playerObject_"+instanceName].audioElem);
     
-    window["playerObject_"+instanceName].progressBar.onmousedown = function(event){
-        mouseDown = true;
-        document.body.style.cursor = "pointer";
-        window["playerObject_"+instanceName].playerSlider.style.marginLeft = event.clientX+"px";
-    }
-    
-    document.body.onmouseup = function(event){
-        mouseDown = false;
-        document.body.style.cursor = "default";
-    }
-    
-    document.body.onmousemove = function(event){
-        if(mouseDown == true){
-            window["playerObject_"+instanceName].playerSlider.style.marginLeft = event.clientX+"px";
-            
-            if((window["playerObject_"+instanceName].playerSlider.style.marginLeft.replace(/\D/g,'')) >= document.body.offsetWidth-20){  //Makes sure that the player thing doesnt go further than the edge of the screen
-                window["playerObject_"+instanceName].playerSlider.style.marginLeft = (event.clientX-20)+"px";
-            }
-        }
-    }
-    
     document.body.appendChild(window["playerObject_"+instanceName].container);
     
     /////////////////////////////////////////////////////
@@ -82,10 +61,48 @@ function createAudioPlayer(instanceName,musicSrc) {
     
     var audioElem = window[window["playerObject_"+instanceName].name+"_audioElem"];
     var playerSlider = window["playerSlider_"+window["playerObject_"+instanceName].name];
+    
+    var wasPaused = true;
     ///
     /////////////
     //////
     /////////////////////////////////////////////////////
+    
+    window["playerObject_"+instanceName].progressBar.onmousedown = function(event){
+        mouseDown = true;
+        document.body.style.cursor = "pointer";
+        window["playerObject_"+instanceName].playerSlider.style.marginLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
+        audioElem.pause();
+    }
+    
+    document.body.onmouseup = function(event){
+        window["playerObject_"+instanceName].playerSlider.style.marginLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
+        
+        if(wasPaused == false){
+            audioElem.play();
+        }
+        
+        mouseDown = false;
+        document.body.style.cursor = "default";
+        audioElem.currentTime = playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration);
+        //console.log(playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration))
+    }
+    
+    document.body.onmousemove = function(event){
+        if(mouseDown == true){
+            window["playerObject_"+instanceName].playerSlider.style.marginLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
+            
+            //console.log(Math.round((window["playerObject_"+instanceName].playerSlider.style.marginLeft.replace(/%/g,''))));
+            
+            if((window["playerObject_"+instanceName].playerSlider.style.marginLeft.replace(/%/g,'')) > 100){  //Makes sure that the player thing doesnt go further than the edge of the screen
+                window["playerObject_"+instanceName].playerSlider.style.marginLeft = 100+"%";
+            }
+        }
+    }
+    
+    audioElem.onplay = function(){
+        wasPaused = false;  //This makes it so that the audio plays on line 81, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
+    }
     
     audioElem.ontimeupdate = function(){
         playerSlider.style.marginLeft = audioElem.currentTime*(100/audioElem.duration)+"%";  //It gets the current time of the audio, then multiplies it by (100/the duration of the audio) -- this results in getting the what percentage away from left the playerSlider thing should be
