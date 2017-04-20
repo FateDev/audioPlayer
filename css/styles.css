@@ -32,7 +32,9 @@ body{
     width:20px;
     background-color:rgba(0, 0, 0, 0.3);
     -webkit-transition:background-color .2s ease;
-    transition:background-color .2s ease;
+    -webkit-transition:background-color .2s ease, margin-left .2s ease;
+    -webkit-transition:background-color .2s ease, margin-left .1s ease;
+    transition:background-color .2s ease, margin-left .1s ease;
 }
 
 .playerSlider:hover, .progressBar_container:hover{

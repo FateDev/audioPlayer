@@ -73,11 +73,18 @@ function createAudioPlayer(instanceName,musicSrc) {
     //////
     /////////////////////////////////////////////////////
     
+    function updateSliderPosition(){
+        window["playerObject_"+instanceName].playerSlider.style.marginLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
+    }
+    
     window["playerObject_"+instanceName].progressBar.onmousedown = function(event){
+        audioElem.pause();
+        //wasPaused = false;
         mouseDown = true;
         document.body.style.cursor = "pointer";
-        window["playerObject_"+instanceName].playerSlider.style.marginLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
-        audioElem.pause();
+        setTimeout(function(){},20);
+        var tempHowMuchLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
+        setTimeout(function(){window["playerObject_"+instanceName].playerSlider.style.marginLeft = tempHowMuchLeft;},20);
     }
     
     function mouseUpUpdateProgressBar(event){
@@ -128,5 +135,9 @@ function createAudioPlayer(instanceName,musicSrc) {
     
     audioElem.ontimeupdate = function(){
         playerSlider.style.marginLeft = audioElem.currentTime*(100/audioElem.duration)+"%";  //It gets the current time of the audio, then multiplies it by (100/the duration of the audio) -- this results in getting the what percentage away from left the playerSlider thing should be
+    }
+    
+    audioElem.onended = function(){
+            window["playerObject_"+instanceName].playPauseButton.textContent = "Play";
     }
 }
