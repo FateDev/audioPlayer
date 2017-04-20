@@ -1,27 +1,16 @@
+/* The styles below must be set */
 *{
     box-sizing:content-box;
     padding: 0;
     margin: 0;
 }
 
-body{
-    min-height: 100%;
+html{
+    min-height: 100vh;
+    min-width: 100vw;
 }
 
 .progressBar_container{
-    position: relative;
-    border:10px solid #333;
-    border-left:0;
-    border-right:0;
-    height:50px;
-    cursor:pointer;
-    -webkit-transition:background-color .2s ease;
-    transition:background-color .2s ease;
-    width:100vw;
-    background-color:rgba(0, 0, 0, 0.5);
-}
-
-.progressBar{
     position: relative;
     height:50px;
 }
@@ -30,11 +19,38 @@ body{
     position:absolute;
     height:100%;
     width:20px;
+}
+
+.progressBar{
+    position: relative;
+    height:50px;
+}
+
+/* Be careful when editing the ones below */
+
+.progressBar_container{
+    width:50vw;         /* Read the comment for the width of the progressBar */
+    margin: auto;
+}
+
+.progressBar{
+    width:calc(50vw - 20px);    /* If the width for the progresBar_container is 'X', the width for this must be: || calc(X - 20px) || */
+}
+
+/* The styles below may be edited within reason */
+
+.progressBar_container{
+    height:50px;
+    cursor:pointer;
+    -webkit-transition:background-color .2s ease;
+    transition:background-color .2s ease;
+    background-color:rgba(0, 0, 0, 0.5);
+}
+
+.playerSlider{
     background-color:rgba(0, 0, 0, 0.3);
     -webkit-transition:background-color .2s ease;
-    -webkit-transition:background-color .2s ease, margin-left .2s ease;
-    -webkit-transition:background-color .2s ease, margin-left .1s ease;
-    transition:background-color .2s ease, margin-left .1s ease;
+    transition:background-color .2s ease;
 }
 
 .playerSlider:hover, .progressBar_container:hover{
@@ -43,4 +59,15 @@ body{
 
 .playerSlider:active, .progressBar_container:active{
     background-color:rgba(0, 0, 0, 0.7);
+}
+
+.playPauseButton{
+    display: block;
+    padding:20px;
+    background-color:#5289b9;
+    color:#fff;
+    border:0;
+    border-radius: 5px;
+    outline: none;
+    margin: 10px auto;
 }

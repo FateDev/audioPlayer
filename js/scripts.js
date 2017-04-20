@@ -17,11 +17,11 @@ function createAudioPlayer(instanceName,musicSrc) {
     
     window["playerObject_"+instanceName].progressBar = document.createElement("div");
     window["playerObject_"+instanceName].progressBar.setAttribute('id','progressBar_'+window["playerObject_"+instanceName].name);
-    window["playerObject_"+instanceName].progressBar.setAttribute('style','width:'+(document.body.offsetWidth-20)+"px");
+    //window["playerObject_"+instanceName].progressBar.setAttribute('style','width:'+(document.body.clientWidth-20)+"px");
     
-    window.onresize = function(){
-        window["playerObject_"+instanceName].progressBar.setAttribute('style','width:'+(document.body.offsetWidth-20)+"px");
-    }
+    //window.onresize = function(){
+    //    window["playerObject_"+instanceName].progressBar.setAttribute('style','width:'+(document.body.clientWidth-20)+"px");
+    //}
     
     window["playerObject_"+instanceName].progressBar.setAttribute('class','progressBar');
     
@@ -74,24 +74,50 @@ function createAudioPlayer(instanceName,musicSrc) {
     /////////////////////////////////////////////////////
     
     function updateSliderPosition(){
-        window["playerObject_"+instanceName].playerSlider.style.marginLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
+        
+        var tempHowMuchMarLeft = (((100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) * (event.screenX-10 - window["playerObject_"+instanceName].containerProgressBar.offsetLeft)))+"%";
+        
+        //console.log(tempHowMuchMarLeft);
+        
+        if(tempHowMuchMarLeft.replace(/%/g,'') > 100){
+            tempHowMuchMarLeft = 100+"%";
+        }else if(tempHowMuchMarLeft.replace(/%/g,'') < 0){
+            tempHowMuchMarLeft = 0+"%";
+        }
+        
+        setTimeout(function(){window["playerObject_"+instanceName].playerSlider.style.marginLeft = tempHowMuchMarLeft;},20);
+        
+        if((((100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) * (event.screenX - 10 - window["playerObject_"+instanceName].containerProgressBar.offsetLeft))) > 100){
+            window["playerObject_"+instanceName].playerSlider.style.marginLeft = 100+"%";
+            audioElem.currentTime = audioElem.duration;
+        }
+        
+        audioElem.currentTime = playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration);
+        //console.log((playerSlider.style.marginLeft.replace(/%/g,''))+" --- "+100+"/"+audioElem.duration);
     }
     
     window["playerObject_"+instanceName].progressBar.onmousedown = function(event){
+        
+        //console.log(((    (100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) + " ---- " + (event.screenX - window["playerObject_"+instanceName].containerProgressBar.offsetLeft))));
+        
         audioElem.pause();
+        window["playerObject_"+instanceName].playPauseButton.textContent = "Play";
+        updateSliderPosition();
         //wasPaused = false;
         mouseDown = true;
-        document.body.style.cursor = "pointer";
-        setTimeout(function(){},20);
-        var tempHowMuchLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
-        setTimeout(function(){window["playerObject_"+instanceName].playerSlider.style.marginLeft = tempHowMuchLeft;},20);
+        
+        document.body.style.cursor = "pointer";;
     }
     
     function mouseUpUpdateProgressBar(event){
-        window["playerObject_"+instanceName].playerSlider.style.marginLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
+        //audioElem.pause();
+        
+        updateSliderPosition();
 
         if(wasPaused == false){
-            audioElem.play();
+            if(!audioElem.ended){
+                audioElem.play();
+            }
             wasPaused = false;  //This makes it so that the audio plays on line 81, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
             window["playerObject_"+instanceName].playPauseButton.textContent = "Pause";
         }
@@ -103,12 +129,30 @@ function createAudioPlayer(instanceName,musicSrc) {
         //console.log(playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration))
     }
     
-    window["playerObject_"+instanceName].progressBar.addEventListener('mouseup',function(event){mouseUpUpdateProgressBar(event);},false);
+    window["playerObject_"+instanceName].containerProgressBar.onmousedown = function(){
+        updateSliderPosition();
+    }
+    
+    audioElem.onplaying = function(){
+        window["playerObject_"+instanceName].playPauseButton.textContent = "Pause";
+    }
+    
+    document.onmouseup = function(){
+        if(mouseDown == true){
+            audioElem.play();
+        }
+        
+        mouseDown = false;
+        //console.log("yes");
+    }
+    
+    window["playerObject_"+instanceName].containerProgressBar.addEventListener('mouseup',function(event){mouseUpUpdateProgressBar(event);},false);
     window["playerObject_"+instanceName].playerSlider.addEventListener('mouseup',function(event){mouseUpUpdateProgressBar(event);},false);
     
     document.body.onmousemove = function(event){
+        
         if(mouseDown == true){
-            window["playerObject_"+instanceName].playerSlider.style.marginLeft = ((100/(document.body.offsetWidth-20)) * event.clientX)+"%";
+            updateSliderPosition();
             
             //console.log(Math.round((window["playerObject_"+instanceName].playerSlider.style.marginLeft.replace(/%/g,''))));
             
