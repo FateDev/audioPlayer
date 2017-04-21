@@ -24,9 +24,13 @@ function createAudioPlayer(instanceName,musicSrc) {
     window["playerObject_"+instanceName].playerSlider.setAttribute('id',"playerSlider_"+window["playerObject_"+instanceName].name);
     window["playerObject_"+instanceName].playerSlider.setAttribute('class',"playerSlider");
     
+    window["playerObject_"+instanceName].playPauseButton_container = document.createElement('div'); //Makes the container element for the buttons as it allows for the cool perspective effect
+    window["playerObject_"+instanceName].playPauseButton_container.setAttribute('class','playPauseButton_container');
+    
     window["playerObject_"+instanceName].playPauseButton  = document.createElement('button'); //Makes the play/pause button and adds the ID for it, and some default (play) text
     window["playerObject_"+instanceName].playPauseButton.setAttribute('id',"playPauseButton_"+window["playerObject_"+instanceName].name);
     window["playerObject_"+instanceName].playPauseButton.setAttribute('class','playPauseButton');
+    window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(0deg) translate(-50%,0);');
     
     window["playerObject_"+instanceName].playPauseButtonImage = document.createElement('img');  //Makes the play/pause images inside the button
     window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/play.svg');
@@ -46,10 +50,11 @@ function createAudioPlayer(instanceName,musicSrc) {
     }
      
     window["playerObject_"+instanceName].playPauseButton.appendChild(window["playerObject_"+instanceName].playPauseButtonImage); //Sets the play/pause image as the play/pause button's child
+    window["playerObject_"+instanceName].playPauseButton_container.appendChild(window["playerObject_"+instanceName].playPauseButton); //Sets the play/pause buttons as child of the container for the perspective effects
     window["playerObject_"+instanceName].progressBar.appendChild(window["playerObject_"+instanceName].playerSlider);  //Assigns the player slider as a child of the progress bar
     window["playerObject_"+instanceName].container.appendChild(window["playerObject_"+instanceName].containerProgressBar); //Makes the container of the progress bar a child of the (overall) container
     window["playerObject_"+instanceName].container.appendChild(window["playerObject_"+instanceName].audioElem); //Makes the audio element a child of the (overall) container
-    window["playerObject_"+instanceName].container.appendChild(window["playerObject_"+instanceName].playPauseButton); //Makes the play/pause button a child of the (overall) container
+    window["playerObject_"+instanceName].container.appendChild(window["playerObject_"+instanceName].playPauseButton_container); //Makes the play/pause button a child of the (overall) container
     
     document.body.appendChild(window["playerObject_"+instanceName].container); //Assigns the container as a child of the main html <body>
     
@@ -74,15 +79,13 @@ function createAudioPlayer(instanceName,musicSrc) {
         ///console.log(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state')); --outputted if playing or not
         if(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state') == "paused"){
             audioElem.play();
-            window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(360deg)');
-            window["playerObject_"+instanceName].playPauseButton.style.backgroundColor = "#6577a0";
+            window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(360deg) translate(-50%,0);background-color:#6577a0;');
             window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('data-state','playing');
             wasPaused = false;  //This makes it so that the audio plays, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
             window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/pause.svg');
         }else if(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state') == "playing"){
             audioElem.pause();
-            window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(0deg)');
-            window["playerObject_"+instanceName].playPauseButton.style.backgroundColor = "#6ba065";
+            window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(0deg) translate(-50%,0);background-color:#6ba065;');
             window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('data-state','paused');
             wasPaused = true;  //This makes it so that the audio plays, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
             window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/play.svg');

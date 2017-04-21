@@ -84,6 +84,7 @@ html{
 }
 
 .playPauseButton{
+    position: absolute;
     display: block;
     padding:20px 50px;
     font-size: 0;
@@ -99,6 +100,9 @@ html{
     transition:transform .2s ease, background-color .2s ease, -webkit-transform .2s ease;
     -webkit-perspective: 1000px;
     perspective: 1000px;
+    -webkit-transform: translate(-50%,0);
+    transform: translate(-50%,0);
+    left: 50%;
 }
 
 #background-image{
@@ -106,6 +110,7 @@ html{
     left:0;
     position: fixed;
     background: url(../images/backgroundCity.jpg);
+    background-position: center;
     
     -webkit-transform: scale(1.1,1.1);
     transform: scale(1.1,1.1);
@@ -120,4 +125,10 @@ html{
 
 .playPauseButtonImg{
     width:30px;
+}
+
+.playPauseButton_container{
+    position: relative;
+    -webkit-perspective: 600px;
+    perspective: 600px;
 }
