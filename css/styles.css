@@ -15,6 +15,10 @@ html{
     height:50px;
 }
 
+.audioContainer{
+    padding: 10px;
+}
+
 .playerSlider{
     position:absolute;
     height:100%;
@@ -37,6 +41,16 @@ html{
     width:calc(50vw - 20px);    /* If the width for the progresBar_container is 'X', the width for this must be: || calc(X - 20px) || */
 }
 
+@media screen and (max-width:500px){
+    .progressBar_container{
+        width: 100vw;
+    }
+    
+    .progressBar{
+        width:calc(100vw - 20px)
+    }
+}
+
 /* The styles below may be edited within reason */
 
 .progressBar_container{
@@ -48,26 +62,52 @@ html{
 }
 
 .playerSlider{
-    background-color:rgba(0, 0, 0, 0.3);
+    background-color:rgba(221, 221, 221, 0.3);
     -webkit-transition:background-color .2s ease;
     transition:background-color .2s ease;
 }
 
-.playerSlider:hover, .progressBar_container:hover{
+.playerSlider:hover{
+    background-color:rgba(221, 221, 221, 0.5);
+}
+
+.playerSlider:active{
+    background-color:rgba(221, 221, 221, 0.7);
+}
+
+.progressBar_container:hover{
     background-color:rgba(0, 0, 0, 0.5);
 }
 
-.playerSlider:active, .progressBar_container:active{
+.progressBar_container:active{
     background-color:rgba(0, 0, 0, 0.7);
 }
 
 .playPauseButton{
     display: block;
-    padding:20px;
-    background-color:#5289b9;
+    padding:20px 50px;
+    font-size: 150%;
+    background-color:#6ba065; /* For pause: #b95252 */
     color:#fff;
     border:0;
     border-radius: 5px;
     outline: none;
     margin: 10px auto;
+}
+
+#background-image{
+    top:0;
+    left:0;
+    position: fixed;
+    background: url(../images/backgroundCity.jpg);
+    
+    -webkit-transform: scale(1.1,1.1);
+    transform: scale(1.1,1.1);
+    
+    -webkit-filter:sepia(60%) blur(5px);
+    filter:sepia(60%) blur(5px);
+    
+    z-index: -100;
+    width:100vw;
+    height: 100vh;
 }
