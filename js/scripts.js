@@ -69,7 +69,7 @@ function createAudioPlayer(instanceName,musicSrc) {
     var audioElem = window[window["playerObject_"+instanceName].name+"_audioElem"];
     var playerSlider = window["playerSlider_"+window["playerObject_"+instanceName].name];
     
-    var wasPaused = true;
+    var wasPaused = false;
     ///
     /////////////
     //////
@@ -81,14 +81,20 @@ function createAudioPlayer(instanceName,musicSrc) {
             audioElem.play();
             window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(360deg) translate(-50%,0);background-color:#6577a0;');
             window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('data-state','playing');
-            wasPaused = false;  //This makes it so that the audio plays, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
             window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/pause.svg');
         }else if(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state') == "playing"){
             audioElem.pause();
             window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(0deg) translate(-50%,0);background-color:#6ba065;');
             window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('data-state','paused');
-            wasPaused = true;  //This makes it so that the audio plays, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
             window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/play.svg');
+        }
+    }
+    
+    window["playerObject_"+instanceName].playPauseButton.onclick = function(){
+        if(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state') == 'playing'){
+            wasPaused = false; //If clicked while playing, it is paused
+        }else{
+            wasPaused = true; //Else if clicked while paused, it is playing
         }
     }
     
@@ -112,22 +118,11 @@ function createAudioPlayer(instanceName,musicSrc) {
         }
         
         audioElem.currentTime = playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration);
-        
-        if(audioElem.currentTime <= 0){
-            playPause();
-            audioElem.currentTime = 0;
-            mouseDown = false;
-        }
         //console.log((playerSlider.style.marginLeft.replace(/%/g,''))+" --- "+100+"/"+audioElem.duration);
     }
     
     window["playerObject_"+instanceName].progressBar.onmousedown = function(event){
-        
-        //console.log(((    (100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) + " ---- " + (event.screenX - window["playerObject_"+instanceName].containerProgressBar.offsetLeft))));
-        
-        playPause();
         updateSliderPosition();
-        //wasPaused = false;
         mouseDown = true;
         
         document.body.style.cursor = "pointer";;
@@ -137,16 +132,13 @@ function createAudioPlayer(instanceName,musicSrc) {
         //audioElem.pause();
         
         updateSliderPosition();
-
-        if(wasPaused == false){
-            if(!audioElem.ended){
-                playPause();
-            }
-            wasPaused = false;  //This makes it so that the audio plays on line 81, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
-        }
         
         document.body.style.cursor = "default";
         audioElem.currentTime = playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration);
+        
+        if(wasPaused == true){
+            playPause();
+        }
         
         mouseDown = false;
         //console.log(playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration))
@@ -157,16 +149,9 @@ function createAudioPlayer(instanceName,musicSrc) {
     }
     
     document.onmouseup = function(){
-        if(mouseDown == true){
-            playPause();
-        }
-        
         mouseDown = false;
         //console.log("yes");
     }
-    
-    window["playerObject_"+instanceName].containerProgressBar.addEventListener('mouseup',function(event){mouseUpUpdateProgressBar(event);},false);
-    window["playerObject_"+instanceName].playerSlider.addEventListener('mouseup',function(event){mouseUpUpdateProgressBar(event);},false);
     
     document.body.onmousemove = function(event){
         
@@ -187,15 +172,13 @@ function createAudioPlayer(instanceName,musicSrc) {
         }
     }
     
+    
+    window["playerObject_"+instanceName].containerProgressBar.addEventListener('mouseup',function(event){mouseUpUpdateProgressBar(event);},false);
+    window["playerObject_"+instanceName].playerSlider.addEventListener('mouseup',function(event){mouseUpUpdateProgressBar(event);},false);
     window["playerObject_"+instanceName].playPauseButton.addEventListener('click',playPause,false);
     
     audioElem.ontimeupdate = function(){
         playerSlider.style.marginLeft = audioElem.currentTime*(100/audioElem.duration)+"%";  //It gets the current time of the audio, then multiplies it by (100/the duration of the audio) -- this results in getting the what percentage away from left the playerSlider thing should be
-        if(playerSlider.style.marginLeft == "100%"){
-            playPause();
-            wasPaused = true;
-            audioElem.currentTime = audioElem.duration;
-        }
     }
     
     audioElem.onended = function(){
