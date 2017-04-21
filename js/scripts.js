@@ -27,7 +27,12 @@ function createAudioPlayer(instanceName,musicSrc) {
     window["playerObject_"+instanceName].playPauseButton  = document.createElement('button'); //Makes the play/pause button and adds the ID for it, and some default (play) text
     window["playerObject_"+instanceName].playPauseButton.setAttribute('id',"playPauseButton_"+window["playerObject_"+instanceName].name);
     window["playerObject_"+instanceName].playPauseButton.setAttribute('class','playPauseButton');
-    window["playerObject_"+instanceName].playPauseButton.textContent = "Play";
+    
+    window["playerObject_"+instanceName].playPauseButtonImage = document.createElement('img');  //Makes the play/pause images inside the button
+    window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/play.svg');
+    window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('class','playPauseButtonImg');
+    window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('data-state','paused');
+    window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('id',"playPauseImage_"+window["playerObject_"+instanceName].name);
     
     window["playerObject_"+instanceName].audioElem = document.createElement('audio');  //Makes the actual audio element, and sets the ID
     window["playerObject_"+instanceName].audioElem.setAttribute('id',window["playerObject_"+instanceName].name+"_audioElem");
@@ -39,7 +44,8 @@ function createAudioPlayer(instanceName,musicSrc) {
         window["playerObject_"+instanceName].sourceElem.setAttribute('id',window["playerObject_"+instanceName].name+"_source_"+i);
         window["playerObject_"+instanceName].audioElem.appendChild(window["playerObject_"+instanceName].sourceElem); //Sets the audio <source> as child of the <audio> element
     }
-        
+     
+    window["playerObject_"+instanceName].playPauseButton.appendChild(window["playerObject_"+instanceName].playPauseButtonImage); //Sets the play/pause image as the play/pause button's child
     window["playerObject_"+instanceName].progressBar.appendChild(window["playerObject_"+instanceName].playerSlider);  //Assigns the player slider as a child of the progress bar
     window["playerObject_"+instanceName].container.appendChild(window["playerObject_"+instanceName].containerProgressBar); //Makes the container of the progress bar a child of the (overall) container
     window["playerObject_"+instanceName].container.appendChild(window["playerObject_"+instanceName].audioElem); //Makes the audio element a child of the (overall) container
@@ -64,6 +70,25 @@ function createAudioPlayer(instanceName,musicSrc) {
     //////
     /////////////////////////////////////////////////////
     
+    function playPause(){
+        ///console.log(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state')); --outputted if playing or not
+        if(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state') == "paused"){
+            audioElem.play();
+            window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(360deg)');
+            window["playerObject_"+instanceName].playPauseButton.style.backgroundColor = "#6577a0";
+            window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('data-state','playing');
+            wasPaused = false;  //This makes it so that the audio plays, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
+            window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/pause.svg');
+        }else if(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state') == "playing"){
+            audioElem.pause();
+            window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(0deg)');
+            window["playerObject_"+instanceName].playPauseButton.style.backgroundColor = "#6ba065";
+            window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('data-state','paused');
+            wasPaused = true;  //This makes it so that the audio plays, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
+            window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/play.svg');
+        }
+    }
+    
     function updateSliderPosition(){
         
         var tempHowMuchMarLeft = (((100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) * (event.screenX-10 - window["playerObject_"+instanceName].containerProgressBar.offsetLeft)))+"%";
@@ -86,9 +111,8 @@ function createAudioPlayer(instanceName,musicSrc) {
         audioElem.currentTime = playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration);
         
         if(audioElem.currentTime <= 0){
-            audioElem.pause();
+            playPause();
             audioElem.currentTime = 0;
-            window["playerObject_"+instanceName].playPauseButton.textContent = "Play";
             mouseDown = false;
         }
         //console.log((playerSlider.style.marginLeft.replace(/%/g,''))+" --- "+100+"/"+audioElem.duration);
@@ -98,8 +122,7 @@ function createAudioPlayer(instanceName,musicSrc) {
         
         //console.log(((    (100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) + " ---- " + (event.screenX - window["playerObject_"+instanceName].containerProgressBar.offsetLeft))));
         
-        audioElem.pause();
-        window["playerObject_"+instanceName].playPauseButton.textContent = "Play";
+        playPause();
         updateSliderPosition();
         //wasPaused = false;
         mouseDown = true;
@@ -114,10 +137,9 @@ function createAudioPlayer(instanceName,musicSrc) {
 
         if(wasPaused == false){
             if(!audioElem.ended){
-                audioElem.play();
+                playPause();
             }
             wasPaused = false;  //This makes it so that the audio plays on line 81, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
-            window["playerObject_"+instanceName].playPauseButton.textContent = "Pause";
         }
         
         document.body.style.cursor = "default";
@@ -131,13 +153,9 @@ function createAudioPlayer(instanceName,musicSrc) {
         updateSliderPosition();
     }
     
-    audioElem.onplaying = function(){
-        window["playerObject_"+instanceName].playPauseButton.textContent = "Pause";
-    }
-    
     document.onmouseup = function(){
         if(mouseDown == true){
-            audioElem.play();
+            playPause();
         }
         
         mouseDown = false;
@@ -159,39 +177,26 @@ function createAudioPlayer(instanceName,musicSrc) {
             }
             
             if(audioElem.currentTime <= 0){
-                audioElem.pause();
+                playPause();
                 audioElem.currentTime = 0;
-                window["playerObject_"+instanceName].playPauseButton.textContent = "Play";
                 mouseDown = false;
             }
         }
     }
     
-    window["playerObject_"+instanceName].playPauseButton.onclick = function(){
-        if(window["playerObject_"+instanceName].playPauseButton.textContent == "Play"){
-            audioElem.play();
-            window["playerObject_"+instanceName].playPauseButton.textContent = "Pause";
-            wasPaused = false;  //This makes it so that the audio plays, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
-        }else if(window["playerObject_"+instanceName].playPauseButton.textContent == "Pause"){
-            audioElem.pause();
-            window["playerObject_"+instanceName].playPauseButton.textContent = "Play";
-            wasPaused = true;  //This makes it so that the audio plays, because it was previously playing || can't do this with paused, so hook it up to some buttons first.
-        }
-    }
+    window["playerObject_"+instanceName].playPauseButton.addEventListener('click',playPause,false);
     
     audioElem.ontimeupdate = function(){
         playerSlider.style.marginLeft = audioElem.currentTime*(100/audioElem.duration)+"%";  //It gets the current time of the audio, then multiplies it by (100/the duration of the audio) -- this results in getting the what percentage away from left the playerSlider thing should be
         if(playerSlider.style.marginLeft == "100%"){
-            audioElem.pause();
+            playPause();
             wasPaused = true;
-            window["playerObject_"+instanceName].playPauseButton.textContent = "Play";
             audioElem.currentTime = audioElem.duration;
         }
     }
     
     audioElem.onended = function(){
-        window["playerObject_"+instanceName].playPauseButton.textContent = "Play";
+        playPause();
         audioElem.currentTime = 0;
-        audioElem.pause();
     }
 }

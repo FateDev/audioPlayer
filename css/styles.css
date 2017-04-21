@@ -86,13 +86,19 @@ html{
 .playPauseButton{
     display: block;
     padding:20px 50px;
-    font-size: 150%;
-    background-color:#6ba065; /* For pause: #b95252 */
+    font-size: 0;
+    background-color:#6ba065; /* For stop: #b95252 ---- For pause: #6577a0 */
     color:#fff;
     border:0;
     border-radius: 5px;
     outline: none;
     margin: 10px auto;
+    -webkit-transition:background-color .2s ease, -webkit-transform .2s ease;
+    transition:background-color .2s ease, -webkit-transform .2s ease;
+    transition:transform .2s ease, background-color .2s ease;
+    transition:transform .2s ease, background-color .2s ease, -webkit-transform .2s ease;
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
 }
 
 #background-image{
@@ -110,4 +116,8 @@ html{
     z-index: -100;
     width:100vw;
     height: 100vh;
+}
+
+.playPauseButtonImg{
+    width:30px;
 }
