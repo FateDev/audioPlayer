@@ -207,7 +207,7 @@ function createAudioPlayer(instanceName,musicSrc) {
     
     window["playerObject_"+instanceName].playPauseButton.addEventListener('pointerdown',playPauseForButtons,false);
     
-    document.body.onclick = function(event){
+    /*document.body.onclick = function(event){
         console.log((((100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) * (event.clientX-10 - window["playerObject_"+instanceName].containerProgressBar.offsetLeft))));
-    }
+    }*/
 }
