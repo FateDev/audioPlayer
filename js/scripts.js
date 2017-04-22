@@ -75,7 +75,22 @@ function createAudioPlayer(instanceName,musicSrc) {
     //////
     /////////////////////////////////////////////////////
     
-    function playPause(){
+    function playPause(playOrPause){
+        ///console.log(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state')); --outputted if playing or not
+        if(playOrPause == "play"){
+            audioElem.play();
+            window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(360deg) translate(-50%,0);background-color:#6577a0;');
+            window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('data-state','playing');
+            window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/pause.svg');
+        }else if(playOrPause == "pause"){
+            audioElem.pause();
+            window["playerObject_"+instanceName].playPauseButton.setAttribute("style",'transform:rotateX(0deg) translate(-50%,0);background-color:#6ba065;');
+            window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('data-state','paused');
+            window["playerObject_"+instanceName].playPauseButtonImage.setAttribute('src','images/play.svg');
+        }
+    }
+    
+    function playPauseForButtons(){
         ///console.log(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state')); --outputted if playing or not
         if(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state') == "paused"){
             audioElem.play();
@@ -90,19 +105,9 @@ function createAudioPlayer(instanceName,musicSrc) {
         }
     }
     
-    window["playerObject_"+instanceName].playPauseButton.onclick = function(){
-        if(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state') == 'playing'){
-            wasPaused = false; //If clicked while playing, it is paused
-        }else{
-            wasPaused = true; //Else if clicked while paused, it is playing
-        }
-    }
-    
     function updateSliderPosition(){
         
-        var tempHowMuchMarLeft = (((100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) * (event.screenX-10 - window["playerObject_"+instanceName].containerProgressBar.offsetLeft)))+"%";
-        
-        //console.log(tempHowMuchMarLeft);
+        var tempHowMuchMarLeft = (((100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) * (event.clientX-10 - window["playerObject_"+instanceName].containerProgressBar.offsetLeft)))+"%";
         
         if(tempHowMuchMarLeft.replace(/%/g,'') > 100){
             tempHowMuchMarLeft = 100+"%";
@@ -110,26 +115,18 @@ function createAudioPlayer(instanceName,musicSrc) {
             tempHowMuchMarLeft = 0+"%";
         }
         
-        setTimeout(function(){window["playerObject_"+instanceName].playerSlider.style.marginLeft = tempHowMuchMarLeft;},20);
+        window["playerObject_"+instanceName].playerSlider.style.marginLeft = tempHowMuchMarLeft;
         
-        if((((100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) * (event.screenX - 10 - window["playerObject_"+instanceName].containerProgressBar.offsetLeft))) > 100){
+        if((((100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) * (event.clientX - 10 - window["playerObject_"+instanceName].containerProgressBar.offsetLeft))) > 100){
             window["playerObject_"+instanceName].playerSlider.style.marginLeft = 100+"%";
             audioElem.currentTime = audioElem.duration;
         }
         
         audioElem.currentTime = playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration);
-        //console.log((playerSlider.style.marginLeft.replace(/%/g,''))+" --- "+100+"/"+audioElem.duration);
+        //console.log(playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration));
     }
     
-    window["playerObject_"+instanceName].progressBar.onmousedown = function(event){
-        updateSliderPosition();
-        mouseDown = true;
-        
-        document.body.style.cursor = "pointer";;
-    }
-    
-    function mouseUpUpdateProgressBar(event){
-        //audioElem.pause();
+    function mouseup_UpdateProgressBar(event){
         
         updateSliderPosition();
         
@@ -137,52 +134,80 @@ function createAudioPlayer(instanceName,musicSrc) {
         audioElem.currentTime = playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration);
         
         if(wasPaused == true){
-            playPause();
+            playPause("play");
         }
         
         mouseDown = false;
-        //console.log(playerSlider.style.marginLeft.replace(/%/g,'') / (100/audioElem.duration))
     }
     
-    window["playerObject_"+instanceName].containerProgressBar.onmousedown = function(){
+    function changeWasPausedBoolValue(){
+        if(window["playerObject_"+instanceName].playPauseButtonImage.getAttribute('data-state') == 'playing'){ //This is to check if it was manually paused or not
+            wasPaused = false; //If clicked while playing, it is paused
+        }else{
+            wasPaused = true; //Else if clicked while paused, it is playing
+        }
+    }
+    
+    function updateSliderPositionOnBarOnMouseDown(){
         updateSliderPosition();
-    }
-    
-    document.onmouseup = function(){
-        mouseDown = false;
-        //console.log("yes");
-    }
-    
-    document.body.onmousemove = function(event){
+        mouseDown = true;
         
+        document.body.style.cursor = "pointer";;
+    }
+    
+    function updateSliderPositionMouseUp(){
+        mouseDown = false;
+        
+        if(window["playerObject_"+instanceName].playerSlider.style.marginLeft.replace(/%/g,'') >= 100){
+            audioElem.currentTime = 0;
+            window["playerObject_"+instanceName].playerSlider.style.marginLeft = "0%";
+        }
+    }
+    
+    function updateSliderPositionWhileMouseDown(event){
         if(mouseDown == true){
             updateSliderPosition();
-            
-            //console.log(Math.round((window["playerObject_"+instanceName].playerSlider.style.marginLeft.replace(/%/g,''))));
             
             if((window["playerObject_"+instanceName].playerSlider.style.marginLeft.replace(/%/g,'')) > 100){  //Makes sure that the player thing doesnt go further than the edge of the screen
                 window["playerObject_"+instanceName].playerSlider.style.marginLeft = 100+"%";
             }
             
             if(audioElem.currentTime <= 0){
-                playPause();
+                playPause("pause");
                 audioElem.currentTime = 0;
                 mouseDown = false;
             }
         }
     }
     
-    
-    window["playerObject_"+instanceName].containerProgressBar.addEventListener('mouseup',function(event){mouseUpUpdateProgressBar(event);},false);
-    window["playerObject_"+instanceName].playerSlider.addEventListener('mouseup',function(event){mouseUpUpdateProgressBar(event);},false);
-    window["playerObject_"+instanceName].playPauseButton.addEventListener('click',playPause,false);
-    
-    audioElem.ontimeupdate = function(){
-        playerSlider.style.marginLeft = audioElem.currentTime*(100/audioElem.duration)+"%";  //It gets the current time of the audio, then multiplies it by (100/the duration of the audio) -- this results in getting the what percentage away from left the playerSlider thing should be
+    function update_slider_with_time(){
+        playerSlider.style.marginLeft = audioElem.currentTime*(100/audioElem.duration)+"%";  
+        //It gets the current time of the audio, then multiplies it by (100/the duration of the audio) -- this results in getting the what percentage away from left the playerSlider thing should be
     }
     
-    audioElem.onended = function(){
-        playPause();
+    function audio_ended_function(){
+        playPause("pause");
         audioElem.currentTime = 0;
+    }
+    
+    window["playerObject_"+instanceName].playPauseButton.addEventListener('pointerdown',changeWasPausedBoolValue,false);
+    
+    window["playerObject_"+instanceName].containerProgressBar.addEventListener('pointerdown',updateSliderPositionMouseUp,false); 
+    //The above 2 are specifically for the container as it also covers the 20px that the bar doesn't have (at the end) due to the player slider
+    
+    document.body.addEventListener('pointerup',updateSliderPositionMouseUp,false);
+    
+    document.body.addEventListener('pointermove',updateSliderPositionWhileMouseDown,false);
+    
+    audioElem.addEventListener('ended',audio_ended_function,false);
+    audioElem.addEventListener('timeupdate',update_slider_with_time,false);
+    
+    window["playerObject_"+instanceName].containerProgressBar.addEventListener('pointerup',function(event){mouseup_UpdateProgressBar(event);},false);
+    window["playerObject_"+instanceName].playerSlider.addEventListener('pointerup',function(event){mouseup_UpdateProgressBar(event);},false);
+    
+    window["playerObject_"+instanceName].playPauseButton.addEventListener('pointerdown',playPauseForButtons,false);
+    
+    document.body.onclick = function(event){
+        console.log((((100/(window["playerObject_"+instanceName].progressBar.offsetWidth)) * (event.clientX-10 - window["playerObject_"+instanceName].containerProgressBar.offsetLeft))));
     }
 }
